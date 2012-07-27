@@ -1,0 +1,7 @@
+*.pyc
+/build
+/docs/_build
+/dist
+/*.egg-info
+/testproject/.coverage
+/testproject/htmlcov
