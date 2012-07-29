@@ -5,7 +5,7 @@ Django Restless is a lightweight RESTful API framework for Django.
 As there are already plenty of REST API frameworks for Django (Tastypie,
 Django REST Framework, Piston), why another one?
 
-Restless helps you write APIs that looslely follow the RESTful
+Restless helps you write APIs that loosely follow the RESTful
 paradigm, without *forcing* you to do so. While that's possible to do in
 other frameworks as well, it can be quite cumbersome. It's more like a set
 of useful tools than a set thing you must comply with.

@@ -11,7 +11,7 @@ Django Restless is a lightweight RESTful API framework for Django.
 As there are already plenty of REST API frameworks for Django (Tastypie,
 Django REST Framework, Piston), why another one?
 
-Restless helps you write APIs that looslely follow the RESTful
+Restless helps you write APIs that loosely follow the RESTful
 paradigm, without *forcing* you to do so. While that's possible to do in
 other frameworks as well, it can be quite cumbersome. It's more like a set
 of useful tools than a set thing you must comply with.
@@ -53,7 +53,7 @@ Tutorial
 ========
 
 After installation, first add "restless" to INSTALLED_APPS (this is not
-strictly neccessary, as restless is just a bunch of helper classes and
+strictly necessary, as restless is just a bunch of helper classes and
 functions, but is good form nevertheless).
 
 Views
@@ -79,7 +79,7 @@ Register the views in URLconf as you'd do with any other class-based view::
 
     url(r'^hello/$', HelloWorld.as_view())
 
-To require authentication, subclass from appopriate mixin as well. For example,
+To require authentication, subclass from appropriate mixin as well. For example,
 if you're using HTTP Basic authentication, have all your views subclass
 :py:class:`restless.auth.BasicHttpAuthMixin` and use
 :py:class:`restless.auth.login_required` for requiring the user be
