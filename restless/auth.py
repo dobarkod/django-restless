@@ -19,8 +19,13 @@ class UsernamePasswordAuthMixin(object):
     """
 
     def authenticate(self, request):
-        self.username = request.params.get('username')
-        self.password = request.params.get('password')
+        if request.method == 'POST':
+            self.username = request.data.get('username')
+            self.password = request.data.get('password')
+        else:
+            self.username = request.params.get('username')
+            self.password = request.params.get('password')
+
         user = auth.authenticate(username=self.username,
             password=self.password)
         if user is not None and user.is_active:
