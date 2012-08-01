@@ -193,7 +193,7 @@ class TestEndpoint(TestCase):
 
         r = self.client.post('author_list', data=json.dumps({
             'name': 'New User',
-        }), content_type='application/json')
+        }), content_type='application/json; charset=UTF-8')
         self.assertEqual(r.status_code, 201)
         self.assertEqual(r.json['name'], 'New User')
         self.assertEqual(r.json['name'],
