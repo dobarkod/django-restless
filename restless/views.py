@@ -43,13 +43,14 @@ class Endpoint(View):
         request.content_type = request.META.get('CONTENT_TYPE', 'text/plain')
         request.params = dict((k, v) for (k, v) in request.GET.items())
         request.data = None
-        if request.content_type == 'application/json':
+        ct = request.content_type.split(";")[0]
+        if ct == 'application/json':
             try:
                 request.data = json.loads(request.body)
             except Exception as ex:
                 return Http400('invalid JSON payload: %s' % ex)
-        elif ((request.content_type == 'application/x-www-form-urlencoded') or
-                (request.content_type.startswith('multipart/form-data'))):
+        elif ((ct == 'application/x-www-form-urlencoded') or
+                (ct.startswith('multipart/form-data'))):
             request.data = dict((k, v) for (k, v) in request.POST.items())
         else:
             request.data = request.body
