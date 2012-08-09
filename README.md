@@ -1,5 +1,7 @@
 # Django Restless
 
+[![Build Status](https://secure.travis-ci.org/senko/DjangoRestless.png?branch=master)](http://travis-ci.org/senko/DjangoRestless)
+
 Django Restless is a lightweight RESTful API framework for Django.
 
 As there are already plenty of REST API frameworks for Django (Tastypie,
