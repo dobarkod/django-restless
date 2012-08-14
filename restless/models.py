@@ -32,6 +32,9 @@ def serialize(src, fields=None, related=None):
         isinstance(src, models.query.QuerySet)):
             return [serialize(item, fields, related) for item in src.all()]
 
+    if isinstance(src, list):
+        return [serialize(item, fields, related) for item in src]
+
     # we use the Django python serializer to serialize the model
     # and optionally recurse into related fields
     elif isinstance(src, models.Model):
