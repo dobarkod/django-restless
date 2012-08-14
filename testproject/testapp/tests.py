@@ -126,6 +126,34 @@ class TestSerialization(TestCase):
         })
         self.assertEqual(s['name'], b.author.name)
 
+    def test_serialize_queryset(self):
+        """Test queryset serialization"""
+
+        Author.objects.all().delete()
+        a1 = Author.objects.create(name="foo")
+        a2 = Author.objects.create(name="bar")
+        s = serialize(Author.objects.all())
+        self.assertEqual(s,
+            [
+                {'name': a1.name, 'id': a1.id},
+                {'name': a2.name, 'id': a2.id},
+            ]
+        )
+
+    def test_serialize_list(self):
+        """Test queryset serialization"""
+
+        Author.objects.all().delete()
+        a1 = Author.objects.create(name="foo")
+        a2 = Author.objects.create(name="bar")
+        s = serialize(list(Author.objects.all()))
+        self.assertEqual(s,
+            [
+                {'name': a1.name, 'id': a1.id},
+                {'name': a2.name, 'id': a2.id},
+            ]
+        )
+
     def test_passthrough(self):
         """Test that non-ORM types just pass through the serializer"""
 
