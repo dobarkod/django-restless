@@ -141,7 +141,7 @@ class TestSerialization(TestCase):
         )
 
     def test_serialize_list(self):
-        """Test queryset serialization"""
+        """Test list serialization"""
 
         Author.objects.all().delete()
         a1 = Author.objects.create(name="foo")
