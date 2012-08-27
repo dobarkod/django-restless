@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='DjangoRestless',
-    version='0.0.1',
+    version='0.0.2',
     author='Senko Rasic',
     author_email='senko.rasic@goodcode.io',
     description='A RESTful framework for Django',
@@ -19,8 +19,6 @@ setup(
         "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-
     packages=find_packages(),
-
     install_requires=[]
 )
