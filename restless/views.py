@@ -57,11 +57,13 @@ class Endpoint(View):
 
         if hasattr(self, 'authenticate') and callable(self.authenticate):
             auth_response = self.authenticate(request)
-            if auth_response is not None:
-                if isinstance(auth_response, HttpResponse):
-                    return auth_response
-                else:
-                    raise TypeError('authenticate method must return HttpResponse instance')
+
+            if isinstance(auth_response, HttpResponse):
+                return auth_response
+            elif auth_response is None:
+                pass
+            else:
+                raise TypeError('authenticate method must return HttpResponse instance or None')
 
         try:
             response = super(Endpoint, self).dispatch(request, *args, **kwargs)
