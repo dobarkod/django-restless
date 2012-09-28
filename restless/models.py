@@ -51,7 +51,7 @@ def serialize(src, fields=None, related=None):
                     v = (None, None, False)
                 (sub_fields, sub_related, flatten) = v
                 sub = serialize(getattr(src, k), sub_fields, sub_related)
-                if flatten:
+                if flatten and sub:
                     for subk, subv in sub.items():
                         data[subk] = subv
                     if k in data:
