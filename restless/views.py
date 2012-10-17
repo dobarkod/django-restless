@@ -46,7 +46,8 @@ class Endpoint(View):
         ct = request.content_type.split(";")[0]
         if ct == 'application/json':
             try:
-                request.data = json.loads(request.body)
+                if request.body:
+                    request.data = json.loads(request.body)
             except Exception as ex:
                 return Http400('invalid JSON payload: %s' % ex)
         elif ((ct == 'application/x-www-form-urlencoded') or
