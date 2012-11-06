@@ -43,6 +43,8 @@ class Endpoint(View):
         request.content_type = request.META.get('CONTENT_TYPE', 'text/plain')
         request.params = dict((k, v) for (k, v) in request.GET.items())
         request.data = None
+        request.raw_data = request.body
+
         ct = request.content_type.split(";")[0]
         if ct == 'application/json':
             try:
