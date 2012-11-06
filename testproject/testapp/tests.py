@@ -262,6 +262,12 @@ class TestEndpoint(TestCase):
         self.assertEqual(r.json['error'], "I'm being a bad view")
         self.assertTrue('traceback' in r.json)
 
+    def test_raw_request_body(self):
+        r = self.client.post('echo_view', data='foo',
+            content_type='text/plain')
+
+        self.assertEqual(r.json['raw_data'], 'foo')
+
 
 class TestAuth(TestCase):
 

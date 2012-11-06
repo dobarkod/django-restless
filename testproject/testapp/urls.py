@@ -15,5 +15,7 @@ urlpatterns = patterns('',
         name='login_view'),
     url(r'^basic-auth-view/$', TestBasicAuth.as_view(),
         name='basic_auth_view'),
+    url(r'^echo-view/$', EchoView.as_view(),
+        name='echo_view'),
     url(r'^.*$', WildcardHandler.as_view())
 )

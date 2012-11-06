@@ -10,7 +10,7 @@ from .models import *
 from .forms import *
 
 __all__ = ['AuthorList', 'AuthorDetail', 'FailsIntentionally', 'TestLogin',
-    'TestBasicAuth', 'WildcardHandler']
+    'TestBasicAuth', 'WildcardHandler', 'EchoView']
 
 
 class AuthorList(Endpoint):
@@ -75,3 +75,17 @@ class WildcardHandler(Endpoint):
     def dispatch(self, request, *args, **kwargs):
         return Http404('no such resource: %s %s' % (
             request.method, request.path))
+
+
+class EchoView(Endpoint):
+    def post(self, request):
+        return {
+            'headers': dict((k, str(v)) for k, v in request.META.iteritems()),
+            'raw_data': str(request.raw_data)
+        }
+
+    def get(self, request):
+        return self.post(request)
+
+    def put(self, request):
+        return self.post(request)
