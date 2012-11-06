@@ -30,6 +30,7 @@ class Endpoint(View):
       * request.params - a dictionary with GET parameters
       * request.data - a dictionary with POST/PUT parameters, as parsed from
           either form submission or submitted application/json data payload
+      * request.raw_data - string containing raw request body
 
     The view method should return either a HTTPResponse (for example, a
     redirect), or something else (usually a dictionary or a list). If something
