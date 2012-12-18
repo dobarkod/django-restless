@@ -137,7 +137,7 @@ the user profile, but the basic user data as well, as a single JSON object
             user = User.objects.get(pk=user_id)
             profile = user.get_profile()
             return serialize(profile, related={
-                'user': (None, user_fields, True)
+                'user': (user_fields, None, True)
             })
 
 Please see the :py:func:`restless.models.serialize` documentation for detailed
