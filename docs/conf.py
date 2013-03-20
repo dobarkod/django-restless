@@ -14,7 +14,11 @@
 import sys, os
 
 sys.path.insert(0, os.path.abspath('..'))
-import restless
+sys.path.insert(1, os.path.join(os.path.abspath('..'), 'testproject'))
+
+from django.core.management import setup_environ
+from testproject import settings
+setup_environ(settings)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

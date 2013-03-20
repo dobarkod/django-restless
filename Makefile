@@ -8,13 +8,13 @@ build:
 	$(SETUP) build
 
 test:
-	cd testproject && python manage.py test testapp
+	$(SETUP) test
 
 coverage:
-	cd testproject && coverage run manage.py test testapp && coverage html
+	$(SETUP) coverage
 
 docs:
-	DJANGO_SETTINGS_MODULE=testproject.settings PYTHONPATH=$$PWD/testproject $(MAKE) -C docs html
+	$(SETUP) build_sphinx
 
 upload: build coverage docs
 	$(SETUP) sdist upload

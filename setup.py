@@ -1,6 +1,41 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
+import os
+import sys
+
+
+class BaseCommand(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+
+class TestCommand(BaseCommand):
+
+    description = "run self-tests"
+
+    def run(self):
+        os.chdir('testproject')
+        ret = os.system('python manage.py test testapp')
+        if ret != 0:
+            sys.exit(-1)
+
+
+class CoverageCommand(BaseCommand):
+    description = "run self-tests and report coverage (requires coverage.py)"
+
+    def run(self):
+        os.chdir('testproject')
+        r = os.system('coverage run --source=restless manage.py test testapp')
+        if r != 0:
+            sys.exit(-1)
+        os.system('coverage html')
+
 
 setup(
     name='DjangoRestless',
@@ -20,5 +55,10 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     packages=find_packages(),
-    install_requires=[]
+    install_requires=[],
+    setup_requires=['Django', 'Sphinx', 'coverage']
+    cmdclass={
+        'test': TestCommand,
+        'coverage': CoverageCommand
+    }
 )
