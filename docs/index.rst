@@ -126,22 +126,41 @@ passing a list of fields to serialize as the second argument::
 (Incidentally, this is exactly what
 :py:class:`restless.auth.AuthenticateEndpoint` does).
 
-Sometimes, you really need to complicate things. For example, get not only
-the user profile, but the basic user data as well, as a single JSON object
-(not nested), again taking care that only some user fields may be shown::
+Or you may only want to exclude a certain field::
 
-    class GetUser(Endpoint):
+    class GetUserData(Endpoint):
         def get(self, request, user_id):
-            user_fields = ('id', 'username', 'first_name', 'last_name',
-                'email')
             user = User.objects.get(pk=user_id)
-            profile = user.get_profile()
-            return serialize(profile, related={
-                'user': (user_fields, None, True)
-            })
+            return serialize(user, exclude=('password'))
+
+Sometimes, you really need to complicate things. For example, for a book
+author, you want to retrieve all the books they've written, and for each
+book, all the user reviews, as well as the average rating for the author
+accross all their books::
+
+    class GetAuthorWithBooks(Endpoint):
+        def get(self, request, author_id):
+            author = Author.objects.get(pk=author_id)
+            return serialize(author, include=[
+                ('books', dict(  # for each book
+                    fields=[
+                        'title',
+                        'isbn',
+                        ('reviews', dict()) # get a list of all reviews
+                    ]
+                )),
+                ('average_rating',
+                    lambda a: a.books.all().aggregate(
+                        Avg('rating'))['avg_rating'])
+            ])
+
 
 Please see the :py:func:`restless.models.serialize` documentation for detailed
 description how this works.
+
+Note: the `serialize` function changed in 0.0.4, and the `related` way of
+specifying sub-objects is now deprecated (and will show a deprecation warning
+if used).
 
 Data deserialization and validation
 -----------------------------------
@@ -205,8 +224,7 @@ Base classes for class-based views implementing the API endpoints.
 restless.models
 ---------------
 
-Model serialization helper. The serializator uses built-in Django model
-serializator, usually used for "dumpdata" management command.
+Model serialization helper.
 
 .. automodule:: restless.models
    :members:
