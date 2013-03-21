@@ -8,7 +8,7 @@ from decimal import Decimal
 import base64
 
 from .models import *
-from restless.models import serialize
+from restless.models import serialize, flatten
 
 
 class TestClient(Client):
@@ -81,7 +81,7 @@ class TestSerialization(TestCase):
         s = serialize(self.author, ['name'])
         self.assertEqual(s, {'name': 'User Foo'})
 
-    def test_serialize_related(self):
+    def test_serialize_related_deprecated(self):
         """Test serialization of related model"""
 
         s = serialize(self.author, related={'books': None})
@@ -91,7 +91,17 @@ class TestSerialization(TestCase):
             self.assertTrue(b['title'].startswith('Book '))
             self.assertTrue(b['isbn'].startswith('123-1-12-123456-'))
 
-    def test_serialize_related_partial(self):
+    def test_serialize_related(self):
+        """Test serialization of related model"""
+
+        s = serialize(self.author, include=[('books', dict())])
+        self.assertEqual(s['name'], 'User Foo')
+        self.assertEqual(len(s['books']), len(self.books))
+        for b in s['books']:
+            self.assertTrue(b['title'].startswith('Book '))
+            self.assertTrue(b['isbn'].startswith('123-1-12-123456-'))
+
+    def test_serialize_related_partial_deprecated(self):
         """Test serialization of some fields of related model"""
 
         s = serialize(self.author, related={
@@ -103,7 +113,21 @@ class TestSerialization(TestCase):
             self.assertTrue(b['title'].startswith('Book '))
             self.assertTrue('isbn' not in b)
 
-    def test_serialize_related_deep(self):
+    def test_serialize_related_partial(self):
+        """Test serialization of some fields of related model"""
+
+        s = serialize(self.author, include=[
+            ('books', dict(
+                fields=['title']
+            ))
+        ])
+        self.assertEqual(s['name'], 'User Foo')
+        self.assertEqual(len(s['books']), len(self.books))
+        for b in s['books']:
+            self.assertTrue(b['title'].startswith('Book '))
+            self.assertTrue('isbn' not in b)
+
+    def test_serialize_related_deep_deprecated(self):
         """Test serialization of twice-removed related model"""
 
         s = serialize(self.author, related={
@@ -117,13 +141,38 @@ class TestSerialization(TestCase):
             self.assertTrue(b['title'].startswith('Book '))
             self.assertEqual(b['publisher']['name'], 'Publisher')
 
-    def test_serialize_related_flatten(self):
+    def test_serialize_related_deep(self):
+        """Test serialization of twice-removed related model"""
+
+        s = serialize(self.author, include=[
+            ('books', dict(
+                include=[('publisher', dict())]
+            ))
+        ])
+
+        self.assertEqual(s['name'], 'User Foo')
+        self.assertEqual(len(s['books']), len(self.books))
+        for b in s['books']:
+            self.assertTrue(b['title'].startswith('Book '))
+            self.assertEqual(b['publisher']['name'], 'Publisher')
+
+    def test_serialize_related_flatten_deprecated(self):
         """Test injection of related models' fields into the serialized one"""
 
         b = self.books[0]
         s = serialize(b, related={
             'author': (None, None, True)
         })
+        self.assertEqual(s['name'], b.author.name)
+
+    def test_serialize_related_flatten(self):
+        """Test injection of related models' fields into the serialized one"""
+
+        b = self.books[0]
+        s = serialize(b, fields=[
+            ('author', dict())
+        ], fixup=flatten('author'))
+
         self.assertEqual(s['name'], b.author.name)
 
     def test_serialize_queryset(self):

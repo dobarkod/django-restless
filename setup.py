@@ -56,7 +56,6 @@ setup(
     ],
     packages=find_packages(),
     install_requires=[],
-    setup_requires=['Django', 'Sphinx', 'coverage'],
     cmdclass={
         'test': TestCommand,
         'coverage': CoverageCommand
