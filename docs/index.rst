@@ -46,7 +46,7 @@ Django Restless is available from cheeseshop, so you can install it via pip::
 
 For the latest and the greatest, you can also get it directly from git master::
 
-    pip install -e git+ssh://github.com/senko/DjangoRestless/tree/master
+    pip install -e git+ssh://github.com/dobarkod/django-restless/tree/master
 
 
 Tutorial
@@ -244,7 +244,7 @@ Repository
 Restless is hosted on GitHub, using git version control. When checking
 for bugs, always try the git master first::
 
-    git clone http://github.com/senko/DjangoRestless.git
+    git clone https://github.com/dobarkod/django-restless.git
 
 
 Tests and docs
