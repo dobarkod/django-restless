@@ -131,7 +131,7 @@ Or you may only want to exclude a certain field::
     class GetUserData(Endpoint):
         def get(self, request, user_id):
             user = User.objects.get(pk=user_id)
-            return serialize(user, exclude=('password'))
+            return serialize(user, exclude=['password'])
 
 Sometimes, you really need to complicate things. For example, for a book
 author, you want to retrieve all the books they've written, and for each
