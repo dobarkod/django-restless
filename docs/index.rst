@@ -93,7 +93,7 @@ authenticated::
             return {'message': 'Hello, %s!' % request.user}
 
 If you're using session-based username/password authentication, you can use
-the :py:class:`restless.auth.UsernamePasswordAuthMixing` in the above example,
+the :py:class:`restless.auth.UsernamePasswordAuthMixin` in the above example,
 or just use :py:class:`restless.auth.AuthenticateEndpoint` which will do the
 same, and return the serialized User object back to the authenticated user::
 
@@ -119,7 +119,7 @@ passing a list of fields to serialize as the second argument::
 
     class GetUserData(Endpoint):
         def get(self, request, user_id):
-            ok_fields = ('id', 'username', 'first_name', 'last_name', 'email')
+            fields = ('id', 'username', 'first_name', 'last_name', 'email')
             user = User.objects.get(pk=user_id)
             return serialize(user, fields)
 
