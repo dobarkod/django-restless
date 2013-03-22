@@ -39,7 +39,7 @@ class CoverageCommand(BaseCommand):
 
 setup(
     name='DjangoRestless',
-    version='0.0.4',
+    version='0.0.5',
     author='Senko Rasic',
     author_email='senko.rasic@goodcode.io',
     description='A RESTful framework for Django',
