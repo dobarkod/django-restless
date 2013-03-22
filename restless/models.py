@@ -75,23 +75,28 @@ def serialize_deprecated(src, fields=None, related=None):
 def serialize_model(obj, fields=None, include=None, exclude=None,
         fixup=None):
 
+    fieldmap = {}
+    for f in obj._meta.concrete_model._meta.local_fields:
+        fieldmap[f.name] = f.attname
+
+    def getfield(f):
+        return getattr(obj, fieldmap.get(f, f))
+
     if fields is None:
-        fields = [f.attname for f in
-            obj._meta.concrete_model._meta.local_fields]
+        fields = fieldmap.keys()
 
     if exclude is not None:
         fields = [f for f in fields if f not in exclude]
 
     if include is not None:
         for i in include:
-            if ((isinstance(i, tuple) and i[0] not in fields) or
-                    (isinstance(i, basestring) and i not in fields)):
+            if isinstance(i, tuple) or (isinstance(i, basestring)):
                 fields.append(i)
 
     data = {}
     for f in fields:
         if isinstance(f, basestring):
-            data[f] = force_text(getattr(obj, f), strings_only=True)
+            data[f] = force_text(getfield(f), strings_only=True)
         elif isinstance(f, tuple):
             k, v = f
             if callable(v):

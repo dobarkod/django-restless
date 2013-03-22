@@ -81,6 +81,12 @@ class TestSerialization(TestCase):
         s = serialize(self.author, ['name'])
         self.assertEqual(s, {'name': 'User Foo'})
 
+    def test_shallow_foreign_key_serialization(self):
+        """Test that foreign key fields are serialized as integer IDs."""
+
+        s = serialize(self.books[0])
+        self.assertEqual(s['author'], self.author.id)
+
     def test_serialize_related_deprecated(self):
         """Test serialization of related model"""
 
