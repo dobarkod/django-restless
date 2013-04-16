@@ -1,6 +1,12 @@
 from django import http
-from django.utils import simplejson as json
 from django.core.serializers.json import DjangoJSONEncoder
+
+try:
+    # json module from python > 2.6
+    import json
+except ImportError:
+    # use packaged django version of simplejson
+    from django.utils import simplejson as json
 
 
 __all__ = ['JSONResponse', 'JSONErrorResponse',
