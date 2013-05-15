@@ -39,18 +39,14 @@ class Endpoint(View):
     then returned.
     """
 
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        request.content_type = request.META.get('CONTENT_TYPE', 'text/plain')
-        request.params = dict((k, v) for (k, v) in request.GET.items())
-        request.data = None
-        request.raw_data = request.body
+    def _parse_body(self, request):
+        if request.method not in ['POST', 'PUT', 'PATCH']:
+            return None
 
         ct = request.content_type.split(";")[0]
         if ct == 'application/json':
             try:
-                if request.body:
-                    request.data = json.loads(request.body)
+                request.data = json.loads(request.body)
             except Exception as ex:
                 return Http400('invalid JSON payload: %s' % ex)
         elif ((ct == 'application/x-www-form-urlencoded') or
@@ -58,6 +54,19 @@ class Endpoint(View):
             request.data = dict((k, v) for (k, v) in request.POST.items())
         else:
             request.data = request.body
+
+        return None
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        request.content_type = request.META.get('CONTENT_TYPE', 'text/plain')
+        request.params = dict((k, v) for (k, v) in request.GET.items())
+        request.data = None
+        request.raw_data = request.body
+
+        err = self._parse_body(request)
+        if err:
+            return err
 
         if hasattr(self, 'authenticate') and callable(self.authenticate):
             auth_response = self.authenticate(request)

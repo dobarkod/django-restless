@@ -323,6 +323,14 @@ class TestEndpoint(TestCase):
 
         self.assertEqual(r.json['raw_data'], 'foo')
 
+    def test_get_payload_is_ignored(self):
+        """Test that body of the GET request is always ignored."""
+        r = self.client.get('echo_view', extra={
+            'CONTENT_TYPE': 'application/json'})
+        # If the GET request body is not ignored, it (empty string) will be an
+        # invalid JSON and will return 400 instead of 200.
+        self.assertEqual(r.status_code, 200)
+
 
 class TestAuth(TestCase):
 
