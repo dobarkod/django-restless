@@ -57,17 +57,7 @@ class Endpoint(View):
 
         return None
 
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        request.content_type = request.META.get('CONTENT_TYPE', 'text/plain')
-        request.params = dict((k, v) for (k, v) in request.GET.items())
-        request.data = None
-        request.raw_data = request.body
-
-        err = self._parse_body(request)
-        if err:
-            return err
-
+    def _process_authenticate(self, request):
         if hasattr(self, 'authenticate') and callable(self.authenticate):
             auth_response = self.authenticate(request)
 
@@ -76,7 +66,23 @@ class Endpoint(View):
             elif auth_response is None:
                 pass
             else:
-                raise TypeError('authenticate method must return HttpResponse instance or None')
+                raise TypeError('authenticate method must return '
+                    'HttpResponse instance or None')
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        request.content_type = request.META.get('CONTENT_TYPE', 'text/plain')
+        request.params = dict((k, v) for (k, v) in request.GET.items())
+        request.data = None
+        request.raw_data = request.body
+
+        response = self._parse_body(request)
+        if response:
+            return response
+
+        response = self._process_authenticate(request)
+        if response:
+            return response
 
         try:
             response = super(Endpoint, self).dispatch(request, *args, **kwargs)
