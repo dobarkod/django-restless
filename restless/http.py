@@ -9,7 +9,7 @@ except ImportError:
     from django.utils import simplejson as json
 
 
-__all__ = ['JSONResponse', 'JSONErrorResponse',
+__all__ = ['JSONResponse', 'JSONErrorResponse', 'HttpError',
     'Http200', 'Http201', 'Http400', 'Http401', 'Http403']
 
 
@@ -87,3 +87,12 @@ class Http409(JSONErrorResponse):
 class Http500(JSONErrorResponse):
     """HTTP 500 Internal Server Error"""
     status_code = 500
+
+
+class HttpError(Exception):
+    """Exception that results in returning a JSONErrorResponse to the user."""
+
+    def __init__(self, code, reason, **additional_data):
+        super(HttpError, self).__init__(self, reason)
+        self.response = JSONErrorResponse(reason, **additional_data)
+        self.response.status_code = code

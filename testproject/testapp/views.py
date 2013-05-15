@@ -1,6 +1,6 @@
 from restless.views import Endpoint
 from restless.models import serialize
-from restless.http import Http201, Http404, Http400
+from restless.http import Http201, Http404, Http400, HttpError
 from restless.auth import (AuthenticateEndpoint, BasicHttpAuthMixin,
     login_required)
 
@@ -10,7 +10,7 @@ from .models import *
 from .forms import *
 
 __all__ = ['AuthorList', 'AuthorDetail', 'FailsIntentionally', 'TestLogin',
-    'TestBasicAuth', 'WildcardHandler', 'EchoView']
+    'TestBasicAuth', 'WildcardHandler', 'EchoView', 'ErrorRaisingView']
 
 
 class AuthorList(Endpoint):
@@ -89,3 +89,8 @@ class EchoView(Endpoint):
 
     def put(self, request):
         return self.post(request)
+
+
+class ErrorRaisingView(Endpoint):
+    def get(self, request):
+        raise HttpError(400, 'raised error', extra_data='foo')

@@ -17,5 +17,7 @@ urlpatterns = patterns('',
         name='basic_auth_view'),
     url(r'^echo-view/$', EchoView.as_view(),
         name='echo_view'),
+    url(r'^error-raising-view/$', ErrorRaisingView.as_view(),
+        name='error_raising_view'),
     url(r'^.*$', WildcardHandler.as_view())
 )

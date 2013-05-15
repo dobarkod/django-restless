@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from django.conf import settings
 from django.http import HttpResponse
-from .http import Http400, Http200, Http500
+from .http import Http200, Http500, HttpError
 
 import traceback
 import json
@@ -41,21 +41,19 @@ class Endpoint(View):
 
     def _parse_body(self, request):
         if request.method not in ['POST', 'PUT', 'PATCH']:
-            return None
+            return
 
         ct = request.content_type.split(";")[0]
         if ct == 'application/json':
             try:
                 request.data = json.loads(request.body)
             except Exception as ex:
-                return Http400('invalid JSON payload: %s' % ex)
+                raise HttpError(400, 'invalid JSON payload: %s' % ex)
         elif ((ct == 'application/x-www-form-urlencoded') or
                 (ct.startswith('multipart/form-data'))):
             request.data = dict((k, v) for (k, v) in request.POST.items())
         else:
             request.data = request.body
-
-        return None
 
     def _process_authenticate(self, request):
         if hasattr(self, 'authenticate') and callable(self.authenticate):
@@ -76,16 +74,13 @@ class Endpoint(View):
         request.data = None
         request.raw_data = request.body
 
-        response = self._parse_body(request)
-        if response:
-            return response
-
-        response = self._process_authenticate(request)
-        if response:
-            return response
-
         try:
+            self._parse_body(request)
+            self._process_authenticate(request)
+
             response = super(Endpoint, self).dispatch(request, *args, **kwargs)
+        except HttpError as err:
+            response = err.response
         except Exception as ex:
             if settings.DEBUG:
                 response = Http500(str(ex), traceback=traceback.format_exc())

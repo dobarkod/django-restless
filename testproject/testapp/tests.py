@@ -331,6 +331,10 @@ class TestEndpoint(TestCase):
         # invalid JSON and will return 400 instead of 200.
         self.assertEqual(r.status_code, 200)
 
+    def test_raising_http_error_returns_it(self):
+        r = self.client.get('error_raising_view')
+        self.assertEqual(r.status_code, 400)
+
 
 class TestAuth(TestCase):
 
