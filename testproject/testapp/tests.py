@@ -399,7 +399,7 @@ class TestModelViews(TestCase):
         """Excercise creating objects via ListEndpoint"""
 
         r = self.client.post('publisher_list', data=json.dumps({
-                'name': 'Another Publisher'
+            'name': 'Another Publisher'
             }), content_type='application/json')
         self.assertEqual(r.status_code, 201)
         self.assertTrue(Publisher.objects.filter(pk=r.json['id']).exists())
@@ -430,10 +430,10 @@ class TestModelViews(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertFalse(Publisher.objects.count())
 
-    def test_publisher_list(self):
+    def test_redonly_publisher_list_denies_creation(self):
         """Excercise method whitelist in ListEndpoint"""
 
         r = self.client.post('readonly_publisher_list', data=json.dumps({
-                'name': 'Another Publisher'
+            'name': 'Another Publisher'
             }), content_type='application/json')
         self.assertEqual(r.status_code, 405)
