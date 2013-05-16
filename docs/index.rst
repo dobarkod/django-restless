@@ -210,6 +210,30 @@ A view handing the PUT request might look something like::
 You can find more examples in the sample project used to test restless in the
 various files in the "testproject/testapp" folder of the source repository.
 
+Data deserialization and validation
+-----------------------------------
+
+If you need a generic object CRUD operations, you can make
+use of the :py:class:`restless.modelviews.ListEndpoint` and
+:py:class:`restless.modelviews.DetailEndpoint` views. Here's an example of
+the list and detail views providing an easy way to list, create, get, update
+and delete a Book objects in a database::
+
+    # views.py
+    class BookList(ListEndpoint):
+        model_class = Book
+
+    class BookDetail(DetailEndpoint):
+        model_clsas = Book
+
+    # urls.py
+    urlpatterns += patterns('',
+        url(r'^publishers/$', PublisherAutoList.as_view(),
+            name='publisher_list'),
+        url(r'^publishers/(?P<object_id>\d+)$', PublisherAutoDetail.as_view(),
+            name='publisher_detail'))
+
+
 API Reference
 =============
 
@@ -219,6 +243,14 @@ restless.views
 Base classes for class-based views implementing the API endpoints.
 
 .. automodule:: restless.views
+   :members:
+
+restless.modelviews
+--------------
+
+Generic class-based views providing CRUD API for the models.
+
+.. automodule:: restless.modelviews
    :members:
 
 restless.models
