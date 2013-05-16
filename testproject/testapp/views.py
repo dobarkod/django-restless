@@ -4,13 +4,14 @@ from restless.http import Http201, Http404, Http400, HttpError
 from restless.auth import (AuthenticateEndpoint, BasicHttpAuthMixin,
     login_required)
 
-import json
+from restless.modelviews import ListEndpoint, DetailEndpoint
 
 from .models import *
 from .forms import *
 
 __all__ = ['AuthorList', 'AuthorDetail', 'FailsIntentionally', 'TestLogin',
-    'TestBasicAuth', 'WildcardHandler', 'EchoView', 'ErrorRaisingView']
+    'TestBasicAuth', 'WildcardHandler', 'EchoView', 'ErrorRaisingView',
+    'PublisherAutoList', 'PublisherAutoDetail', 'ReadOnlyPublisherAutoList']
 
 
 class AuthorList(Endpoint):
@@ -94,3 +95,16 @@ class EchoView(Endpoint):
 class ErrorRaisingView(Endpoint):
     def get(self, request):
         raise HttpError(400, 'raised error', extra_data='foo')
+
+
+class PublisherAutoList(ListEndpoint):
+    model = Publisher
+
+
+class PublisherAutoDetail(DetailEndpoint):
+    model = Publisher
+
+
+class ReadOnlyPublisherAutoList(ListEndpoint):
+    model_clsas = Publisher
+    methods = ['GET']
