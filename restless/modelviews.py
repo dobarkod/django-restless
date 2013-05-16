@@ -22,9 +22,10 @@ def _get_form(form, model):
 
 class ListEndpoint(Endpoint):
     """
-    List Endpoint supporting getting a list of objects and creating a new
-    one. The endpoint exports two view methods by default: get (for getting
-    the list of objects) and post (for creating a new object).
+    List :py:class:`restless.views.Endpoint` supporting getting a list of
+    objects and creating a new one. The endpoint exports two view methods by
+    default: get (for getting the list of objects) and post (for creating a
+    new object).
 
     The only required configuration for the endpoint is the `model`
     class attribute, which should be set to the model you want to have a list
@@ -40,9 +41,9 @@ class ListEndpoint(Endpoint):
     Further customization can be done by overriding the `get_query_set`
     method of the object (by default, it returns the queryset with all of
     the objects) and the `serialize` method (by default, uses the default
-    `restless.models.serialize` behaviour).
+    :py:func:`restless.models.serialize` behaviour).
 
-    Here's a complete of a list endpoint definition:
+    Here's a complete of a list endpoint definition::
 
         class MyList(ListEndpoint):
             model = MyModel
@@ -56,7 +57,8 @@ class ListEndpoint(Endpoint):
                 return restless.models.serialize(objs, fields=['name'])
 
     If you need further customization, you should implement the complete view
-    yourself (subclass directly from `restless.views.Endpoint` class).
+    yourself (subclass directly from :py:class:`restless.views.Endpoint`
+    class).
     """
 
     model = None
@@ -92,8 +94,9 @@ class ListEndpoint(Endpoint):
 
 class DetailEndpoint(Endpoint):
     """
-    DetailEndpoint supports getting a single object from the database
-    (HTTP GET), updating it (HTTP PUT) and deleting it (HTTP DELETE).
+    Detail :py:class:`restless.views.Endpoint` supports getting a single
+    object from the database (HTTP GET), updating it (HTTP PUT) and deleting
+    it (HTTP DELETE).
 
     The only required configuration for the endpoint is the `model`
     class attribute, which should be set to the model you want to have the
@@ -112,9 +115,9 @@ class DetailEndpoint(Endpoint):
     argument), the `get_instance` method (if you need to override the actual
     getting of the instance from the database using queryset provided by
     `get_query_set` method) and the `serialize` method (by default, uses
-    the default `restless.models.serialize` behaviour).
+    the default :py:func:`restless.models.serialize` behaviour).
 
-    Here's a complete of a detail endpoint definition:
+    Here's a complete of a detail endpoint definition::
 
         class MyList(DetailEndpoint):
             model = MyModel
@@ -128,7 +131,8 @@ class DetailEndpoint(Endpoint):
                 return restless.models.serialize(objs, fields=['name'])
 
     If you need further customization, you should implement the complete view
-    yourself (subclass directly from `restless.views.Endpoint` class).
+    yourself (subclass directly from :py:class:`restless.views.Endpoint`
+    class).
     """
 
     model = None
