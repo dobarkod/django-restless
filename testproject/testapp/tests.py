@@ -6,6 +6,7 @@ import json
 import urllib
 from decimal import Decimal
 import base64
+import warnings
 
 from .models import *
 from restless.models import serialize, flatten
@@ -90,7 +91,8 @@ class TestSerialization(TestCase):
     def test_serialize_related_deprecated(self):
         """Test serialization of related model"""
 
-        s = serialize(self.author, related={'books': None})
+        with warnings.catch_warnings(record=True):
+            s = serialize(self.author, related={'books': None})
         self.assertEqual(s['name'], 'User Foo')
         self.assertEqual(len(s['books']), len(self.books))
         for b in s['books']:
@@ -110,9 +112,10 @@ class TestSerialization(TestCase):
     def test_serialize_related_partial_deprecated(self):
         """Test serialization of some fields of related model"""
 
-        s = serialize(self.author, related={
-            'books': ('title', None, False)
-        })
+        with warnings.catch_warnings(record=True):
+            s = serialize(self.author, related={
+                'books': ('title', None, False)
+            })
         self.assertEqual(s['name'], 'User Foo')
         self.assertEqual(len(s['books']), len(self.books))
         for b in s['books']:
@@ -136,10 +139,11 @@ class TestSerialization(TestCase):
     def test_serialize_related_deep_deprecated(self):
         """Test serialization of twice-removed related model"""
 
-        s = serialize(self.author, related={
-            'books': (None, {
-                'publisher': None,
-            }, None)})
+        with warnings.catch_warnings(record=True):
+            s = serialize(self.author, related={
+                'books': (None, {
+                    'publisher': None,
+                }, None)})
 
         self.assertEqual(s['name'], 'User Foo')
         self.assertEqual(len(s['books']), len(self.books))
