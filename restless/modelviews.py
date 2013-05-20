@@ -1,5 +1,4 @@
-from django.core.exceptions import ObjectDoesNotExist
-from django.forms import ModelForm
+from django.forms.models import modelform_factory
 
 from .views import Endpoint
 from .http import HttpError, Http200, Http201
@@ -13,9 +12,7 @@ def _get_form(form, model):
     if form:
         return form
     elif model:
-        return type(model._meta.object_name + 'Form',
-            (ModelForm,), {
-                'Meta': type('Meta', (object,), {'model': model})})
+        return modelform_factory(model)
     else:
         raise NotImplementedError('Form or Model class not specified')
 
