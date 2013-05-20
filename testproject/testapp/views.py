@@ -107,7 +107,7 @@ class PublisherAutoDetail(DetailEndpoint):
 
 
 class ReadOnlyPublisherAutoList(ListEndpoint):
-    model_clsas = Publisher
+    model = Publisher
     methods = ['GET']
 
 

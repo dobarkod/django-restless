@@ -407,14 +407,14 @@ class TestModelViews(TestCase):
     def test_publisher_details(self):
         """Excercise getting a single object details via DetailEndpoint"""
 
-        r = self.client.get('publisher_detail', object_id=self.publisher.id)
+        r = self.client.get('publisher_detail', pk=self.publisher.id)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json['id'], self.publisher.id)
 
     def test_publisher_update(self):
         """Excercise updating an object via POST via DetailEndpoint"""
 
-        r = self.client.put('publisher_detail', object_id=self.publisher.id,
+        r = self.client.put('publisher_detail', pk=self.publisher.id,
             content_type='application/json', data=json.dumps({
                 'name': 'Changed Name'
             }))
@@ -426,9 +426,9 @@ class TestModelViews(TestCase):
     def test_publisher_delete(self):
         """Excercise deleting an object via DetailEndpoint"""
 
-        r = self.client.delete('publisher_detail', object_id=self.publisher.id)
+        r = self.client.delete('publisher_detail', pk=self.publisher.id)
         self.assertEqual(r.status_code, 200)
-        self.assertFalse(Publisher.objects.count())
+        self.assertFalse(Publisher.objects.exists())
 
     def test_redonly_publisher_list_denies_creation(self):
         """Excercise method whitelist in ListEndpoint"""

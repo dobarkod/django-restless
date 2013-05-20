@@ -34,28 +34,6 @@ class ListEndpoint(Endpoint):
 
     You can restrict the HTTP methods available by specifying the `methods`
     class variable.
-
-    Further customization can be done by overriding the `get_query_set`
-    method of the object (by default, it returns the queryset with all of
-    the objects) and the `serialize` method (by default, uses the default
-    :py:func:`restless.models.serialize` behaviour).
-
-    Here's a complete of a list endpoint definition::
-
-        class MyList(ListEndpoint):
-            model = MyModel
-            form = MyModelForm  # optional
-            methods = ['GET', 'POST']  # optional
-
-            def get_query_self(self, request, *args, **kwargs):
-                return MyModel.objects.filter(active=True)
-
-            def serialize(self, objs):
-                return restless.models.serialize(objs, fields=['name'])
-
-    If you need further customization, you should implement the complete view
-    yourself (subclass directly from :py:class:`restless.views.Endpoint`
-    class).
     """
 
     model = None
@@ -63,15 +41,36 @@ class ListEndpoint(Endpoint):
     methods = ['GET', 'POST']
 
     def get_query_set(self, request, *args, **kwargs):
+        """Return a QuerySet that this endpoint represents.
+
+        If `model` class attribute is set, this method returns the `all()`
+        queryset for the model. You can override the method to provide custom
+        behaviour. The `args` and `kwargs` parameters are passed in directly
+        from the URL pattern match.
+
+        If the method raises a :py:class:`restless.http.HttpError` exception,
+        the rest of the request processing is terminated and the error is
+        immediately returned to the client.
+        """
+
         if self.model:
             return self.model.objects.all()
         else:
             raise HttpError(404, 'Resource Not Found')
 
     def serialize(self, objs):
+        """Serialize the objects in the response.
+
+        By default, the method uses the :py:func:`restless.models.serialize`
+        function to serialize the objects with default behaviour. Override the
+        method to customize the serialization.
+        """
+
         return serialize(objs)
 
     def get(self, request, *args, **kwargs):
+        """Return a serialized list of objects in this endpoint."""
+
         if 'GET' not in self.methods:
             raise HttpError(405, 'Method Not Allowed')
 
@@ -79,6 +78,8 @@ class ListEndpoint(Endpoint):
         return self.serialize(qs)
 
     def post(self, request, *args, **kwargs):
+        """Create a new object."""
+
         if 'POST' not in self.methods:
             raise HttpError(405, 'Method Not Allowed')
 
@@ -106,59 +107,61 @@ class DetailEndpoint(Endpoint):
     You can restrict the HTTP methods available by specifying the `methods`
     class variable.
 
-    Further customization can be done by overriding the `get_query_set`
-    method of the object (by default, it returns the queryset filtering the
-    instance object whose primary key is equal to the `object_id` keyword
-    argument), the `get_instance` method (if you need to override the actual
-    getting of the instance from the database using queryset provided by
-    `get_query_set` method) and the `serialize` method (by default, uses
-    the default :py:func:`restless.models.serialize` behaviour).
-
-    Here's a complete of a detail endpoint definition::
-
-        class MyList(DetailEndpoint):
-            model = MyModel
-            form = MyModelForm  # optional
-            methods = ['GET', 'PUT', 'DELETE']  # optional
-
-            def get_query_self(self, request, *args, **kwargs):
-                return MyModel.objects.filter(id=kwargs['mymodel_id'])
-
-            def serialize(self, objs):
-                return restless.models.serialize(objs, fields=['name'])
-
-    If you need further customization, you should implement the complete view
-    yourself (subclass directly from :py:class:`restless.views.Endpoint`
-    class).
     """
-
     model = None
     form = None
+    pk_url_kwarg = 'pk'
     methods = ['GET', 'PUT', 'DELETE']
 
-    def get_query_set(self, request, *args, **kwargs):
-        if self.model and 'object_id' in kwargs:
-            return self.model.objects.filter(pk=kwargs['object_id'])
+    def get_instance(self, request, *args, **kwargs):
+        """Return a model instance represented by this endpoint.
+
+        If `model` is set and the primary key keyword argument is present,
+        the method attempts to get the model with the primary key equal
+        to the url argument.
+
+        By default, the primary key keyword argument name is `pk`. This can
+        be overridden by setting the `pk_url_kwarg` class attribute.
+
+        You can override the method to provide custom behaviour. The `args`
+        and `kwargs` parameters are passed in directly from the URL pattern
+        match.
+
+        If the method raises a :py:class:`restless.http.HttpError` exception,
+        the rest of the request processing is terminated and the error is
+        immediately returned to the client.
+        """
+
+        if self.model and self.pk_url_kwarg in kwargs:
+            try:
+                return self.model.objects.get(pk=kwargs.get(self.pk_url_kwarg))
+            except self.model.DoesNotExist:
+                raise HttpError(404, 'Resource Not Found')
         else:
             raise HttpError(404, 'Resource Not Found')
 
-    def get_instance(self, request, *args, **kwargs):
-        try:
-            return self.get_query_set(request, *args, **kwargs).get()
-        except ObjectDoesNotExist:
-            raise HttpError(404, 'Resource Not Found')
-
     def serialize(self, obj):
+        """Serialize the object in the response.
+
+        By default, the method uses the :py:func:`restless.models.serialize`
+        function to serialize the object with default behaviour. Override the
+        method to customize the serialization.
+        """
+
         return serialize(obj)
 
     def get(self, request, *args, **kwargs):
+        """Return the serialized object represented by this endpoint."""
+
         if 'GET' not in self.methods:
             raise HttpError(405, 'Method Not Allowed')
 
         return self.serialize(self.get_instance(request, *args, **kwargs))
 
     def put(self, request, *args, **kwargs):
-        if 'GET' not in self.methods:
+        """Update the object represented by this endpoint."""
+
+        if 'PUT' not in self.methods:
             raise HttpError(405, 'Method Not Allowed')
 
         Form = _get_form(self.form, self.model)
@@ -171,7 +174,9 @@ class DetailEndpoint(Endpoint):
         raise HttpError(400, 'Invalid data', errors=form.errors)
 
     def delete(self, request, *args, **kwargs):
-        if 'GET' not in self.methods:
+        """Delete the object represented by this endpoint."""
+
+        if 'DELETE' not in self.methods:
             raise HttpError(405, 'Method Not Allowed')
 
         instance = self.get_instance(request, *args, **kwargs)
