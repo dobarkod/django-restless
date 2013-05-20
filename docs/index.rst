@@ -1,32 +1,16 @@
-.. DjangoRestless documentation master file, created by
-   sphinx-quickstart on Sat Jul  7 20:18:28 2012.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Django Restless - JSON-based RESTful APIs tools for Django
+==========================================================
 
-Django Restless - A lightweight RESTful API framework
-=====================================================
-
-Django Restless is a lightweight RESTful API framework for Django.
-
-As there are already plenty of REST API frameworks for Django (Tastypie,
-Django REST Framework, Piston), why another one?
-
-Restless helps you write APIs that loosely follow the RESTful
-paradigm, without *forcing* you to do so. While that's possible to do in
-other frameworks as well, it can be quite cumbersome. It's more like a set
-of useful tools than a set thing you must comply with.
+Django Restless is a lightweight set of tools for implementing JSON-based
+RESTful APIs in Django. It helps you to write APIs that loosely follow
+the RESTful paradigm, without forcing you to do so, and without imposing a
+full-blown REST framework.
 
 Restless provides only JSON support. If you need to support XML or
 other formats, you probably want to take a look at some of the other frameworks
-out there.
+out there (we recommend Django REST framework).
 
-One of the main points of Restless is that it's lightweight, and reuses as much
-of functionality in Django as possible. For example, JSON serialization is
-using Django serializers, and input parsing and validation is done using
-standard Django forms. This means you don't have to learn a whole new API
-to use Restless.
-
-Here's a simple view implementing an API endpoint greeting the caller::
+Here is a simple view implementing an API endpoint greeting the caller::
 
     from restless.views import Endpoint
 
@@ -34,6 +18,28 @@ Here's a simple view implementing an API endpoint greeting the caller::
         def get(self, request):
             name = request.params.get('name', 'World')
             return {'message': 'Hello, %s!' % name}
+
+One of the main ideas behind Restless is that it's lightweight and reuses
+as much of functionality in Django as possible. For example, input parsing and
+validation is done using standard Django forms. This means you don't have to
+learn a whole new API to use Restless.
+
+Besides giving you a set of tools to implement your own APIs, Restless comes
+with a few endpoints modelled after Django's generic class-based views for
+common use-cases.
+
+For example, here's how to implement list and detail endpoints for `MyModel`
+class allowing the users to list, create, get details of, update and delete
+the models via API::
+
+    from restless.modelviews import ListEndpoint, DetailEndpoint
+    from myapp.models import MyModel
+
+    class MyList(ListEndpoint):
+        model = MyModel
+
+    class MyDetail(DetailEndpoint):
+        model = MyModel
 
 
 Installation
@@ -49,12 +55,14 @@ For the latest and the greatest, you can also get it directly from git master::
     pip install -e git+ssh://github.com/dobarkod/django-restless/tree/master
 
 
-Tutorial
-========
+Usage
+=====
 
-After installation, first add "restless" to INSTALLED_APPS (this is not
+After installation, first add `restless` to `INSTALLED_APPS` (this is not
 strictly necessary, as restless is just a bunch of helper classes and
-functions, but is good form nevertheless).
+functions, but is good form nevertheless)::
+
+    INSTALLED_APPS += ('restless',)
 
 Views
 -----
@@ -123,9 +131,6 @@ passing a list of fields to serialize as the second argument::
             user = User.objects.get(pk=user_id)
             return serialize(user, fields)
 
-(Incidentally, this is exactly what
-:py:class:`restless.auth.AuthenticateEndpoint` does).
-
 Or you may only want to exclude a certain field::
 
     class GetUserData(Endpoint):
@@ -158,9 +163,10 @@ accross all their books::
 Please see the :py:func:`restless.models.serialize` documentation for detailed
 description how this works.
 
-Note: the `serialize` function changed in 0.0.4, and the `related` way of
-specifying sub-objects is now deprecated (and will show a deprecation warning
-if used).
+.. note::
+
+    The `serialize` function changed in 0.0.4, and the `related` way of
+    specifying sub-objects is now deprecated.
 
 Data deserialization and validation
 -----------------------------------
@@ -230,11 +236,11 @@ and delete a Book objects in a database::
     urlpatterns += patterns('',
         url(r'^books/$', BookList.as_view(),
             name='book_list'),
-        url(r'^books/(?P<object_id>\d+)$', BookDetail.as_view(),
+        url(r'^books/(?P<pk>\d+)$', BookDetail.as_view(),
             name='book_detail'))
 
-Note that the `object_id` parameter here was automatically used by the
-detail view.
+The `pk` parameter here was automatically used by the detail view.
+The parameter name can be customized if needed.
 
 There are a number of ways to customize the generic views, explained in the
 API reference in more detail.
@@ -299,10 +305,28 @@ How to contribute
 You've found (and hopefully fixed) a bug, or have a great idea you think
 should be added to Django Restless? Patches welcome! :-)
 
+Bugs (and feature requests) are reported via the GitHub Issue tracker:
+https://github.com/dobarkod/django-restless/issues/
+
+If you have a bug fix or a patch for a feature you'd like to include, here's
+how to submit the patch:
+
+* Fork the https://github.com/dobarkod/django-restless.git
+  repository
+* Make the changes in a branch in your fork
+* Make a pull request from the branch in your fork to dobarkod/django-restless master
+
+If you're suggesting adding a feature, please file a feature request first
+before implementing it, so we can discuss your proposed solution.
+
 When contributing code, please adhere to the Python coding style guide (PEP8).
 Both bug fixes and new feature implementations should come with corresponding
 unit/functional tests. For bug fixes, the test should exhibit the bug if the
 fix is not applied.
+
+You can see the list of the contributors in the AUTHORS.md file in the
+Django Restless source code.
+
 
 Repository
 ----------
