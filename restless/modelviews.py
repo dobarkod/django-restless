@@ -5,7 +5,7 @@ from .http import HttpError, Http200, Http201
 
 from .models import serialize
 
-__all__ = ['ListEndpoint', 'DetailEndpoint']
+__all__ = ['ListEndpoint', 'DetailEndpoint', 'ActionEndpoint']
 
 
 def _get_form(form, model):
@@ -177,3 +177,28 @@ class DetailEndpoint(Endpoint):
         instance = self.get_instance(request, *args, **kwargs)
         instance.delete()
         return {}
+
+
+class ActionEndpoint(DetailEndpoint):
+    """
+    A variant of :py:class:`DetailEndpoint` for supporting a RPC-style action
+    on a resource. All the documentation for DetailEndpoint applies, but
+    only the `POST` HTTP method is allowed by default, and it invokes the
+    :py:meth:`ActionEndpoint.action` method to do the actual work.
+
+    If you want to support any of the other HTTP methods with their default
+    behaviour as in DetailEndpoint, just modify the `methods` list to
+    include the methods you need.
+
+    """
+    methods = ['POST']
+
+    def post(self, request, *args, **kwargs):
+        if 'POST' not in self.methods:
+            raise HttpError(405, 'Method Not Allowed')
+
+        instance = self.get_instance(request, *args, **kwargs)
+        return self.action(request, instance, *args, **kwargs)
+
+    def action(self, request, obj, *args, **kwargs):
+        raise HttpError(405, 'Method Not Allowed')

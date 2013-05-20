@@ -25,6 +25,8 @@ urlpatterns = patterns('',
         name='readonly_publisher_list'),
     url(r'^publishers/(?P<object_id>\d+)$', PublisherAutoDetail.as_view(),
         name='publisher_detail'),
+    url(r'^publishers/(?P<pk>\d+)/do_something$', PublisherAction.as_view(),
+        name='publisher_action'),
 
     url(r'^.*$', WildcardHandler.as_view()),
 )

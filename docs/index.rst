@@ -239,6 +239,17 @@ detail view.
 There are a number of ways to customize the generic views, explained in the
 API reference in more detail.
 
+RPC-style API for model views
+-----------------------------
+
+Sometimes a RPC-style API on models is needed (for example, to set a flag on
+the model). The :py:class:`restless.modelviews.ActionEndpoint` provides an
+easy way to do it. ActionEndpoint is a subclass of
+:py:class:`restless.modelviews.DetailEndpoint` allowing only `POST` HTTP
+request by default, which invoke the
+:py:meth:`restless.modelviews.DetailEndpoint.action` method.
+
+
 API Reference
 =============
 

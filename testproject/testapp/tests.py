@@ -437,3 +437,11 @@ class TestModelViews(TestCase):
             'name': 'Another Publisher'
             }), content_type='application/json')
         self.assertEqual(r.status_code, 405)
+
+    def test_publisher_action(self):
+        """Excercise RPC-style actions via ActionEndpoint"""
+
+        r = self.client.post('publisher_action', pk=self.publisher.id,
+            content_type='application/json')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json, {'result': 'done'})

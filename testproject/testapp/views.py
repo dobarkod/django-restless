@@ -4,14 +4,15 @@ from restless.http import Http201, Http404, Http400, HttpError
 from restless.auth import (AuthenticateEndpoint, BasicHttpAuthMixin,
     login_required)
 
-from restless.modelviews import ListEndpoint, DetailEndpoint
+from restless.modelviews import ListEndpoint, DetailEndpoint, ActionEndpoint
 
 from .models import *
 from .forms import *
 
 __all__ = ['AuthorList', 'AuthorDetail', 'FailsIntentionally', 'TestLogin',
     'TestBasicAuth', 'WildcardHandler', 'EchoView', 'ErrorRaisingView',
-    'PublisherAutoList', 'PublisherAutoDetail', 'ReadOnlyPublisherAutoList']
+    'PublisherAutoList', 'PublisherAutoDetail', 'ReadOnlyPublisherAutoList',
+    'PublisherAction']
 
 
 class AuthorList(Endpoint):
@@ -108,3 +109,10 @@ class PublisherAutoDetail(DetailEndpoint):
 class ReadOnlyPublisherAutoList(ListEndpoint):
     model_clsas = Publisher
     methods = ['GET']
+
+
+class PublisherAction(ActionEndpoint):
+    model = Publisher
+
+    def action(self, obj, *args, **kwargs):
+        return {'result': 'done'}
