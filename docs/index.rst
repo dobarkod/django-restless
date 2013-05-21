@@ -54,6 +54,7 @@ For the latest and the greatest, you can also get it directly from git master::
 
     pip install -e git+ssh://github.com/dobarkod/django-restless/tree/master
 
+The supported Python versions are 2.6, 2.7 and 3.3.
 
 Usage
 =====

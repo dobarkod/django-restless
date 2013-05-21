@@ -35,6 +35,8 @@ For the latest and the greatest, you can also get it directly from git master:
 
     pip install -e git+ssh://github.com/senko/DjangoRestless/tree/master
 
+The supported Python versions are 2.6, 2.7 and 3.3.
+
 ## Documentation
 
 Documentation is graciously hosted by ReadTheDocs: http://django-restless.rtfd.org/
