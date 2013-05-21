@@ -3,13 +3,18 @@ from django.test.client import Client, MULTIPART_CONTENT
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 import json
-import urllib
 from decimal import Decimal
 import base64
 import warnings
+import six
 
 from .models import *
 from restless.models import serialize, flatten
+
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 
 class TestClient(Client):
@@ -17,7 +22,8 @@ class TestClient(Client):
     @staticmethod
     def process(response):
         try:
-            response.json = json.loads(response.content)
+            raw_data = response.content.decode('utf-8')
+            response.json = json.loads(response.content.decode('utf-8'))
         except:
             response.json = None
         finally:
@@ -256,7 +262,7 @@ class TestEndpoint(TestCase):
     def test_create_author_form_encoded(self):
         """Exercise application/x-www-form-urlencoded POST"""
 
-        r = self.client.post('author_list', data=urllib.urlencode({
+        r = self.client.post('author_list', data=urlencode({
             'name': 'New User',
         }), content_type='application/x-www-form-urlencoded')
         self.assertEqual(r.status_code, 201)
@@ -280,7 +286,7 @@ class TestEndpoint(TestCase):
 
         r = self.client.post('author_list', data=json.dumps({
             'name': 'New User',
-        }), content_type='application/json; charset=UTF-8')
+        }), content_type='application/json; charset=utf-8')
         self.assertEqual(r.status_code, 201)
         self.assertEqual(r.json['name'], 'New User')
         self.assertEqual(r.json['name'],
@@ -322,10 +328,12 @@ class TestEndpoint(TestCase):
         self.assertTrue('traceback' in r.json)
 
     def test_raw_request_body(self):
-        r = self.client.post('echo_view', data='foo',
+        raw = b'\x01\x02\x03'
+        r = self.client.post('echo_view', data=raw,
             content_type='text/plain')
 
-        self.assertEqual(r.json['raw_data'], 'foo')
+        self.assertEqual(base64.b64decode(r.json['raw_data'].encode('ascii')),
+            raw)
 
     def test_get_payload_is_ignored(self):
         """Test that body of the GET request is always ignored."""
@@ -371,7 +379,8 @@ class TestAuth(TestCase):
         """Test that HTTP Basic Auth succeeds"""
 
         r = self.client.get('basic_auth_view', extra={
-            'HTTP_AUTHORIZATION': 'Basic ' + base64.b64encode('foo:bar'),
+            'HTTP_AUTHORIZATION': 'Basic ' +
+                base64.b64encode(b'foo:bar').decode('ascii'),
         })
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json['id'], self.user.id)

@@ -1,3 +1,5 @@
+import six
+
 from django.core import serializers
 from django.db import models
 
@@ -83,19 +85,19 @@ def serialize_model(obj, fields=None, include=None, exclude=None,
         return getattr(obj, fieldmap.get(f, f))
 
     if fields is None:
-        fields = fieldmap.keys()
+        fields = list(fieldmap.keys())
 
     if exclude is not None:
         fields = [f for f in fields if f not in exclude]
 
     if include is not None:
         for i in include:
-            if isinstance(i, tuple) or (isinstance(i, basestring)):
+            if isinstance(i, tuple) or (isinstance(i, six.string_types)):
                 fields.append(i)
 
     data = {}
     for f in fields:
-        if isinstance(f, basestring):
+        if isinstance(f, six.string_types):
             data[f] = force_text(getfield(f), strings_only=True)
         elif isinstance(f, tuple):
             k, v = f
