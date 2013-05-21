@@ -72,7 +72,7 @@ class TestSerialization(TestCase):
             b = self.author.books.create(author=self.author,
                 title='Book %d' % i,
                 isbn='123-1-12-123456-%d' % i,
-                price=Decimal(10.0),
+                price=Decimal("10.0"),
                 publisher=self.publisher)
             self.books.append(b)
 
