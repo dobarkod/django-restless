@@ -110,7 +110,7 @@ class DetailEndpoint(Endpoint):
     """
     model = None
     form = None
-    pk_url_kwarg = 'pk'
+    lookup_field = 'pk'
     methods = ['GET', 'PUT', 'DELETE']
 
     def get_instance(self, request, *args, **kwargs):
@@ -121,7 +121,7 @@ class DetailEndpoint(Endpoint):
         to the url argument.
 
         By default, the primary key keyword argument name is `pk`. This can
-        be overridden by setting the `pk_url_kwarg` class attribute.
+        be overridden by setting the `lookup_field` class attribute.
 
         You can override the method to provide custom behaviour. The `args`
         and `kwargs` parameters are passed in directly from the URL pattern
@@ -132,9 +132,11 @@ class DetailEndpoint(Endpoint):
         immediately returned to the client.
         """
 
-        if self.model and self.pk_url_kwarg in kwargs:
+        if self.model and self.lookup_field in kwargs:
             try:
-                return self.model.objects.get(pk=kwargs.get(self.pk_url_kwarg))
+                return self.model.objects.get(**{
+                    self.lookup_field: kwargs.get(self.lookup_field)
+                })
             except self.model.DoesNotExist:
                 raise HttpError(404, 'Resource Not Found')
         else:

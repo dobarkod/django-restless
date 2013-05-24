@@ -12,7 +12,7 @@ from .forms import *
 __all__ = ['AuthorList', 'AuthorDetail', 'FailsIntentionally', 'TestLogin',
     'TestBasicAuth', 'WildcardHandler', 'EchoView', 'ErrorRaisingView',
     'PublisherAutoList', 'PublisherAutoDetail', 'ReadOnlyPublisherAutoList',
-    'PublisherAction']
+    'PublisherAction', 'BookDetail']
 
 
 class AuthorList(Endpoint):
@@ -116,3 +116,8 @@ class PublisherAction(ActionEndpoint):
 
     def action(self, obj, *args, **kwargs):
         return {'result': 'done'}
+
+
+class BookDetail(DetailEndpoint):
+    model = Book
+    lookup_field = 'isbn'

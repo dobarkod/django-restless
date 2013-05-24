@@ -390,6 +390,9 @@ class TestModelViews(TestCase):
     def setUp(self):
         self.client = TestClient()
         self.publisher = Publisher.objects.create(name='User Foo')
+        self.author = Author.objects.create(name='User Foo')
+        self.book = self.author.books.create(author=self.author, title='Book',
+            isbn='1234',  price=Decimal('10.0'), publisher=self.publisher)
 
     def test_publisher_list(self):
         """Excercise listing objects via ListEndpoint"""
@@ -449,3 +452,10 @@ class TestModelViews(TestCase):
             content_type='application/json')
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json, {'result': 'done'})
+
+    def test_book_details(self):
+        """Excercise using custom lookup_field on a DetailEndpoint"""
+
+        r = self.client.get('book_detail', isbn=self.book.isbn)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json['id'], self.book.id)
