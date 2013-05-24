@@ -136,7 +136,7 @@ def serialize(src, fields=None, related=None, include=None, exclude=None,
       * a tuple, where the first element is a string key and the second
         is a function taking one argument - function will be run with the
         object being serialized as the argument, and the function result will
-        be included in the result, with the key being the first tuple element)
+        be included in the result, with the key being the first tuple element
 
       * a tuple, where the first element is a related model attribute name
         and the second is a dictionary - related model instance(s) will

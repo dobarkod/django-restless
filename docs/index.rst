@@ -197,7 +197,7 @@ Let's say we have a Widget object that can be extended with Addon::
         class Meta:
             model = Addon
 
-and the PUT request from user modifies the Widget object:
+and the PUT request from user modifies the Widget object::
 
     { "title": "My widget!", "addon": { "text": "This is my addon" } }
 
@@ -228,10 +228,10 @@ and delete a Book objects in a database::
 
     # views.py
     class BookList(ListEndpoint):
-        model_class = Book
+        model = Book
 
     class BookDetail(DetailEndpoint):
-        model_clsas = Book
+        model = Book
 
     # urls.py
     urlpatterns += patterns('',
@@ -256,6 +256,17 @@ easy way to do it. ActionEndpoint is a subclass of
 request by default, which invoke the
 :py:meth:`restless.modelviews.DetailEndpoint.action` method.
 
+Here's an example of a Book endpoint on which a POST marks the book as
+borrowed by the current user::
+
+    class BorrowBook(ActionEndpoint):
+        model = Book
+
+        @login_required
+        def action(self, obj, *args, **kwargs):
+            obj.borrowed_by = request.user
+            obj.save()
+            return serialize(obj)
 
 API Reference
 =============
