@@ -193,6 +193,9 @@ def serialize(src, fields=None, related=None, include=None, exclude=None,
     elif isinstance(src, list) or isinstance(src, models.query.QuerySet):
         return [subs(i) for i in src]
 
+    elif isinstance(src, dict):
+        return dict((k, subs(v)) for k, v in src.items())
+
     elif isinstance(src, models.Model):
         return serialize_model(src, fields=fields, include=include,
             exclude=exclude, fixup=fixup)

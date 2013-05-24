@@ -212,7 +212,7 @@ class TestSerialization(TestCase):
         )
 
     def test_serialize_list(self):
-        """Test list serialization"""
+        """Test that list serialization deep-serializes list elements"""
 
         Author.objects.all().delete()
         a1 = Author.objects.create(name="foo")
@@ -224,6 +224,17 @@ class TestSerialization(TestCase):
                 {'name': a2.name, 'id': a2.id},
             ]
         )
+
+    def test_serialize_dict(self):
+        """Test that dict serialization deep-serializes dict values"""
+
+        Author.objects.all().delete()
+        a1 = Author.objects.create(name="foo")
+        a2 = Author.objects.create(name="bar")
+        s = serialize({'a1': a1, 'a2': a2})
+
+        self.assertEqual(s['a1']['name'], a1.name)
+        self.assertEqual(s['a2']['name'], a2.name)
 
     def test_passthrough(self):
         """Test that non-ORM types just pass through the serializer"""
