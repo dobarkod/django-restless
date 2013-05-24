@@ -197,7 +197,13 @@ class TestSerialization(TestCase):
         Author.objects.all().delete()
         a1 = Author.objects.create(name="foo")
         a2 = Author.objects.create(name="bar")
-        s = serialize(Author.objects.all())
+        qs = Author.objects.all()
+        _ = list(qs)  # force sql query execution
+
+        # Check that the same (cached) queryset is used, instead of a clone
+        with self.assertNumQueries(0):
+            s = serialize(qs)
+
         self.assertEqual(s,
             [
                 {'name': a1.name, 'id': a1.id},
