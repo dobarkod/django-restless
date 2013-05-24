@@ -1,6 +1,12 @@
 from django.contrib import auth
-from django.utils.encoding import smart_unicode, DjangoUnicodeDecodeError
+from django.utils.encoding import DjangoUnicodeDecodeError
 import base64
+
+try:
+    from django.utils.encoding import smart_text
+except ImportError:
+    from django.utils.encoding import smart_unicode as smart_text
+
 
 from .views import Endpoint
 from .http import Http200, Http401, Http403
@@ -44,12 +50,13 @@ class BasicHttpAuthMixin(object):
             authdata = request.META['HTTP_AUTHORIZATION'].split()
             if len(authdata) == 2 and authdata[0].lower() == "basic":
                 try:
-                    auth_parts = base64.b64decode(authdata[1]).partition(':')
-                except TypeError:
+                    raw = authdata[1].encode('ascii')
+                    auth_parts = base64.b64decode(raw).split(b':')
+                except:
                     return
                 try:
-                    uname, passwd = (smart_unicode(auth_parts[0]),
-                        smart_unicode(auth_parts[2]))
+                    uname, passwd = (smart_text(auth_parts[0]),
+                        smart_text(auth_parts[1]))
                 except DjangoUnicodeDecodeError:
                     return
 

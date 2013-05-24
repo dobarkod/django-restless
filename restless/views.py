@@ -39,14 +39,29 @@ class Endpoint(View):
     then returned.
     """
 
+    @staticmethod
+    def _parse_content_type(content_type):
+        if ';' in content_type:
+            ct, params = content_type.split(';', 1)
+            try:
+                params = dict(param.split('=') for param in params.split())
+            except:
+                params = {}
+        else:
+            ct = content_type
+            params = {}
+        return ct, params
+
     def _parse_body(self, request):
         if request.method not in ['POST', 'PUT', 'PATCH']:
             return
 
-        ct = request.content_type.split(";")[0]
+        ct, ct_params = self._parse_content_type(request.content_type)
         if ct == 'application/json':
+            charset = ct_params.get('charset', 'utf8')
             try:
-                request.data = json.loads(request.body)
+                data = request.body.decode(charset)
+                request.data = json.loads(data)
             except Exception as ex:
                 raise HttpError(400, 'invalid JSON payload: %s' % ex)
         elif ((ct == 'application/x-www-form-urlencoded') or

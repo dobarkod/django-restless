@@ -1,16 +1,20 @@
+import base64
+
 from restless.views import Endpoint
 from restless.models import serialize
 from restless.http import Http201, Http404, Http400, HttpError
 from restless.auth import (AuthenticateEndpoint, BasicHttpAuthMixin,
     login_required)
 
-import json
+from restless.modelviews import ListEndpoint, DetailEndpoint, ActionEndpoint
 
 from .models import *
 from .forms import *
 
 __all__ = ['AuthorList', 'AuthorDetail', 'FailsIntentionally', 'TestLogin',
-    'TestBasicAuth', 'WildcardHandler', 'EchoView', 'ErrorRaisingView']
+    'TestBasicAuth', 'WildcardHandler', 'EchoView', 'ErrorRaisingView',
+    'PublisherAutoList', 'PublisherAutoDetail', 'ReadOnlyPublisherAutoList',
+    'PublisherAction', 'BookDetail']
 
 
 class AuthorList(Endpoint):
@@ -80,8 +84,8 @@ class WildcardHandler(Endpoint):
 class EchoView(Endpoint):
     def post(self, request):
         return {
-            'headers': dict((k, str(v)) for k, v in request.META.iteritems()),
-            'raw_data': str(request.raw_data)
+            'headers': dict((k, str(v)) for k, v in request.META.items()),
+            'raw_data': base64.b64encode(request.raw_data).decode('ascii')
         }
 
     def get(self, request):
@@ -94,3 +98,28 @@ class EchoView(Endpoint):
 class ErrorRaisingView(Endpoint):
     def get(self, request):
         raise HttpError(400, 'raised error', extra_data='foo')
+
+
+class PublisherAutoList(ListEndpoint):
+    model = Publisher
+
+
+class PublisherAutoDetail(DetailEndpoint):
+    model = Publisher
+
+
+class ReadOnlyPublisherAutoList(ListEndpoint):
+    model = Publisher
+    methods = ['GET']
+
+
+class PublisherAction(ActionEndpoint):
+    model = Publisher
+
+    def action(self, obj, *args, **kwargs):
+        return {'result': 'done'}
+
+
+class BookDetail(DetailEndpoint):
+    model = Book
+    lookup_field = 'isbn'

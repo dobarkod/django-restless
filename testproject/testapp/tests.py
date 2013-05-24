@@ -3,12 +3,18 @@ from django.test.client import Client, MULTIPART_CONTENT
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 import json
-import urllib
 from decimal import Decimal
 import base64
+import warnings
+import six
 
 from .models import *
 from restless.models import serialize, flatten
+
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 
 class TestClient(Client):
@@ -16,7 +22,8 @@ class TestClient(Client):
     @staticmethod
     def process(response):
         try:
-            response.json = json.loads(response.content)
+            raw_data = response.content.decode('utf-8')
+            response.json = json.loads(response.content.decode('utf-8'))
         except:
             response.json = None
         finally:
@@ -65,7 +72,7 @@ class TestSerialization(TestCase):
             b = self.author.books.create(author=self.author,
                 title='Book %d' % i,
                 isbn='123-1-12-123456-%d' % i,
-                price=Decimal(10.0),
+                price=Decimal("10.0"),
                 publisher=self.publisher)
             self.books.append(b)
 
@@ -90,7 +97,8 @@ class TestSerialization(TestCase):
     def test_serialize_related_deprecated(self):
         """Test serialization of related model"""
 
-        s = serialize(self.author, related={'books': None})
+        with warnings.catch_warnings(record=True):
+            s = serialize(self.author, related={'books': None})
         self.assertEqual(s['name'], 'User Foo')
         self.assertEqual(len(s['books']), len(self.books))
         for b in s['books']:
@@ -110,9 +118,10 @@ class TestSerialization(TestCase):
     def test_serialize_related_partial_deprecated(self):
         """Test serialization of some fields of related model"""
 
-        s = serialize(self.author, related={
-            'books': ('title', None, False)
-        })
+        with warnings.catch_warnings(record=True):
+            s = serialize(self.author, related={
+                'books': ('title', None, False)
+            })
         self.assertEqual(s['name'], 'User Foo')
         self.assertEqual(len(s['books']), len(self.books))
         for b in s['books']:
@@ -136,10 +145,11 @@ class TestSerialization(TestCase):
     def test_serialize_related_deep_deprecated(self):
         """Test serialization of twice-removed related model"""
 
-        s = serialize(self.author, related={
-            'books': (None, {
-                'publisher': None,
-            }, None)})
+        with warnings.catch_warnings(record=True):
+            s = serialize(self.author, related={
+                'books': (None, {
+                    'publisher': None,
+                }, None)})
 
         self.assertEqual(s['name'], 'User Foo')
         self.assertEqual(len(s['books']), len(self.books))
@@ -252,7 +262,7 @@ class TestEndpoint(TestCase):
     def test_create_author_form_encoded(self):
         """Exercise application/x-www-form-urlencoded POST"""
 
-        r = self.client.post('author_list', data=urllib.urlencode({
+        r = self.client.post('author_list', data=urlencode({
             'name': 'New User',
         }), content_type='application/x-www-form-urlencoded')
         self.assertEqual(r.status_code, 201)
@@ -276,7 +286,7 @@ class TestEndpoint(TestCase):
 
         r = self.client.post('author_list', data=json.dumps({
             'name': 'New User',
-        }), content_type='application/json; charset=UTF-8')
+        }), content_type='application/json; charset=utf-8')
         self.assertEqual(r.status_code, 201)
         self.assertEqual(r.json['name'], 'New User')
         self.assertEqual(r.json['name'],
@@ -318,10 +328,12 @@ class TestEndpoint(TestCase):
         self.assertTrue('traceback' in r.json)
 
     def test_raw_request_body(self):
-        r = self.client.post('echo_view', data='foo',
+        raw = b'\x01\x02\x03'
+        r = self.client.post('echo_view', data=raw,
             content_type='text/plain')
 
-        self.assertEqual(r.json['raw_data'], 'foo')
+        self.assertEqual(base64.b64decode(r.json['raw_data'].encode('ascii')),
+            raw)
 
     def test_get_payload_is_ignored(self):
         """Test that body of the GET request is always ignored."""
@@ -367,7 +379,8 @@ class TestAuth(TestCase):
         """Test that HTTP Basic Auth succeeds"""
 
         r = self.client.get('basic_auth_view', extra={
-            'HTTP_AUTHORIZATION': 'Basic ' + base64.b64encode('foo:bar'),
+            'HTTP_AUTHORIZATION': 'Basic ' +
+                base64.b64encode(b'foo:bar').decode('ascii'),
         })
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json['id'], self.user.id)
@@ -379,3 +392,79 @@ class TestAuth(TestCase):
             'HTTP_AUTHORIZATION': 'Basic xyz',
         })
         self.assertEqual(r.status_code, 401)
+
+
+class TestModelViews(TestCase):
+
+    def setUp(self):
+        self.client = TestClient()
+        self.publisher = Publisher.objects.create(name='User Foo')
+        self.author = Author.objects.create(name='User Foo')
+        self.book = self.author.books.create(author=self.author, title='Book',
+            isbn='1234',  price=Decimal('10.0'), publisher=self.publisher)
+
+    def test_publisher_list(self):
+        """Excercise listing objects via ListEndpoint"""
+
+        r = self.client.get('publisher_list')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(r.json), 1)
+        self.assertEqual(r.json[0]['id'], self.publisher.id)
+
+    def test_publisher_create(self):
+        """Excercise creating objects via ListEndpoint"""
+
+        r = self.client.post('publisher_list', data=json.dumps({
+            'name': 'Another Publisher'
+            }), content_type='application/json')
+        self.assertEqual(r.status_code, 201)
+        self.assertTrue(Publisher.objects.filter(pk=r.json['id']).exists())
+
+    def test_publisher_details(self):
+        """Excercise getting a single object details via DetailEndpoint"""
+
+        r = self.client.get('publisher_detail', pk=self.publisher.id)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json['id'], self.publisher.id)
+
+    def test_publisher_update(self):
+        """Excercise updating an object via POST via DetailEndpoint"""
+
+        r = self.client.put('publisher_detail', pk=self.publisher.id,
+            content_type='application/json', data=json.dumps({
+                'name': 'Changed Name'
+            }))
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json['id'], self.publisher.id)
+        p = Publisher.objects.get(id=self.publisher.id)
+        self.assertEqual(p.name, 'Changed Name')
+
+    def test_publisher_delete(self):
+        """Excercise deleting an object via DetailEndpoint"""
+
+        r = self.client.delete('publisher_detail', pk=self.publisher.id)
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(Publisher.objects.exists())
+
+    def test_redonly_publisher_list_denies_creation(self):
+        """Excercise method whitelist in ListEndpoint"""
+
+        r = self.client.post('readonly_publisher_list', data=json.dumps({
+            'name': 'Another Publisher'
+            }), content_type='application/json')
+        self.assertEqual(r.status_code, 405)
+
+    def test_publisher_action(self):
+        """Excercise RPC-style actions via ActionEndpoint"""
+
+        r = self.client.post('publisher_action', pk=self.publisher.id,
+            content_type='application/json')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json, {'result': 'done'})
+
+    def test_book_details(self):
+        """Excercise using custom lookup_field on a DetailEndpoint"""
+
+        r = self.client.get('book_detail', isbn=self.book.isbn)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json['id'], self.book.id)
