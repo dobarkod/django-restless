@@ -39,7 +39,7 @@ class CoverageCommand(BaseCommand):
 
 setup(
     name='DjangoRestless',
-    version='0.0.5',
+    version='0.0.6',
     author='Senko Rasic',
     author_email='senko.rasic@goodcode.io',
     description='A RESTful framework for Django',
@@ -52,6 +52,7 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     packages=find_packages(),
