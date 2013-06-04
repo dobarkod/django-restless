@@ -118,7 +118,7 @@ def serialize(src, fields=None, related=None, include=None, exclude=None,
 
     By default, all the model fields (and only the model fields) are
     serialized. If the field is a Python primitive, it is serialized as such,
-    otherwise it is converted to string in utf8 encoding.
+    otherwise it is converted to string in utf-8 encoding.
 
     If `fields` is specified, it is a list of attribute descriptions to be
     serialized, replacing the default (all model fields). If `include` is

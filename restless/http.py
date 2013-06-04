@@ -22,7 +22,7 @@ class JSONResponse(http.HttpResponse):
         to JSON using django.core.serializers.json.DjangoJSONEncoder).
         """
 
-        kwargs['content_type'] = 'application/json; charset=utf8'
+        kwargs['content_type'] = 'application/json; charset=utf-8'
         super(JSONResponse, self).__init__(json.dumps(data,
             cls=DjangoJSONEncoder), **kwargs)
 

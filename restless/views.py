@@ -58,7 +58,7 @@ class Endpoint(View):
 
         ct, ct_params = self._parse_content_type(request.content_type)
         if ct == 'application/json':
-            charset = ct_params.get('charset', 'utf8')
+            charset = ct_params.get('charset', 'utf-8')
             try:
                 data = request.body.decode(charset)
                 request.data = json.loads(data)
