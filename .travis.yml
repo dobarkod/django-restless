@@ -5,4 +5,4 @@ python:
   - 3.3
 install: pip install Django six coveralls --use-mirrors
 script: make coverage
-after_success: coveralls
+after_success: cd testproject && coveralls
