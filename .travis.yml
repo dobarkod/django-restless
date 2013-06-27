@@ -3,5 +3,6 @@ python:
   - 2.6
   - 2.7
   - 3.3
-install: pip install Django six --use-mirrors
-script: make test
+install: pip install Django six coveralls --use-mirrors
+script: make coverage
+after_success: coveralls
