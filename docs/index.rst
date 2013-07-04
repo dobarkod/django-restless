@@ -116,7 +116,10 @@ case, you just pass the object to :py:func:`restless.models.serialize`, and
 get back a dictionary with all the model fields (except related models)
 serialized::
 
+    from django.contrib.auth import get_user_model
     from restless.models import serialize
+
+    User = get_user_model()
 
     class GetUserProfileData(Endpoint):
         def get(self, request, user_id):
