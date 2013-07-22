@@ -88,6 +88,8 @@ class ListEndpoint(Endpoint):
         if form.is_valid():
             obj = form.save()
             return Http201(self.serialize(obj))
+            
+        raise HttpError(400, 'Invalid Data', errors=form.errors)
 
 
 class DetailEndpoint(Endpoint):
