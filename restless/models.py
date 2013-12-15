@@ -190,7 +190,9 @@ def serialize(src, fields=None, related=None, include=None, exclude=None,
     if isinstance(src, models.Manager):
         return [subs(i) for i in src.all()]
 
-    elif isinstance(src, list) or isinstance(src, models.query.QuerySet):
+    elif (isinstance(src, list) or
+            isinstance(src, models.query.QuerySet) or
+            isinstance(src, set)):
         return [subs(i) for i in src]
 
     elif isinstance(src, dict):

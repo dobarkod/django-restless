@@ -236,6 +236,27 @@ class TestSerialization(TestCase):
         self.assertEqual(s['a1']['name'], a1.name)
         self.assertEqual(s['a2']['name'], a2.name)
 
+    def test_serialize_set(self):
+        """
+        Test that set serialization deep-serializes set values and
+        returns a list (since sets can't contain a dict and aren't JSON
+        serializable).
+        """
+
+        Author.objects.all().delete()
+        a1 = Author.objects.create(name="bar")
+        a2 = Author.objects.create(name="foo")
+        s = serialize(set(Author.objects.all()))
+        self.assertTrue(isinstance(s, list))
+        # Must cast back to set to ignore ordering
+        self.assertEqual(sorted(s, key=lambda el: el['name']),
+            [
+                {'name': a1.name, 'id': a1.id},
+                {'name': a2.name, 'id': a2.id},
+            ]
+        )
+
+
     def test_passthrough(self):
         """Test that non-ORM types just pass through the serializer"""
 
