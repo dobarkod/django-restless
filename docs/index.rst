@@ -266,7 +266,7 @@ borrowed by the current user::
         model = Book
 
         @login_required
-        def action(self, obj, *args, **kwargs):
+        def action(self, request, obj, *args, **kwargs):
             obj.borrowed_by = request.user
             obj.save()
             return serialize(obj)
