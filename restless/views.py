@@ -37,6 +37,14 @@ class Endpoint(View):
     other than HTTPResponse is returned, it is first serialized into
     :py:class:`restless.http.JSONResponse` with a status code 200 (OK),
     then returned.
+
+    The authenticate method should return either a HttpResponse, which will
+    shortcut the rest of the request handling (the view method will not be
+    called), or None (the request will be processed normally).
+
+    Both methods can raise a :py:class:`restless.http.HttpError` exception
+    instead of returning a HttpResponse, to shortcut the request handling and
+    immediately return the error to the client.
     """
 
     @staticmethod
