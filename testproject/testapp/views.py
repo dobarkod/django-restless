@@ -2,7 +2,7 @@ import base64
 
 from restless.views import Endpoint
 from restless.models import serialize
-from restless.http import Http201, Http404, Http400, HttpError
+from restless.http import Http201, Http403, Http404, Http400, HttpError
 from restless.auth import (AuthenticateEndpoint, BasicHttpAuthMixin,
     login_required)
 
@@ -14,7 +14,7 @@ from .forms import *
 __all__ = ['AuthorList', 'AuthorDetail', 'FailsIntentionally', 'TestLogin',
     'TestBasicAuth', 'WildcardHandler', 'EchoView', 'ErrorRaisingView',
     'PublisherAutoList', 'PublisherAutoDetail', 'ReadOnlyPublisherAutoList',
-    'PublisherAction', 'BookDetail']
+    'PublisherAction', 'BookDetail', 'TestCustomAuthMethod']
 
 
 class AuthorList(Endpoint):
@@ -73,6 +73,23 @@ class TestBasicAuth(Endpoint, BasicHttpAuthMixin):
     @login_required
     def get(self, request):
         return serialize(request.user)
+
+
+class TestCustomAuthMethod(Endpoint):
+    def authenticate(self, request):
+        user = request.params.get('user')
+        if user == 'friend':
+            return None
+        elif user == 'foe':
+            return Http403('you shall not pass')
+        elif user == 'exceptional-foe':
+            raise HttpError(403, 'with exception')
+        else:
+            # this is an illegal return value for this function
+            return 42
+
+    def get(self, request):
+        return 'OK'
 
 
 class WildcardHandler(Endpoint):

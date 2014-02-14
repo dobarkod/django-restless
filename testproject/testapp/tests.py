@@ -431,6 +431,28 @@ class TestAuth(TestCase):
         })
         self.assertEqual(r.status_code, 401)
 
+    def test_custom_auth_fn_returning_none_allows_request(self):
+        r = self.client.get('custom_auth_method', data={'user': 'friend'})
+        self.assertEqual(r.status_code, 200)
+
+    def test_custom_auth_fn_returning_httpresponse_shortcuts_request(self):
+        r = self.client.get('custom_auth_method', data={'user': 'foe'})
+        self.assertEqual(r.status_code, 403)
+
+    def test_custom_auth_fn_raising_exception_shortcuts_request(self):
+        r = self.client.get('custom_auth_method',
+            data={'user': 'exceptional-foe'})
+        self.assertEqual(r.status_code, 403)
+
+    def test_custom_auth_fn_with_invalid_return_value_is_a_bug(self):
+        ex = None
+        try:
+            self.client.get('custom_auth_method')
+        except TypeError as ex:
+            pass
+
+        self.assertIsNotNone(ex)
+
 
 class TestModelViews(TestCase):
 
