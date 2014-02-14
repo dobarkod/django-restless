@@ -448,8 +448,8 @@ class TestAuth(TestCase):
         ex = None
         try:
             self.client.get('custom_auth_method')
-        except TypeError as ex:
-            pass
+        except TypeError as e:
+            ex = e
 
         self.assertIsNotNone(ex)
 
