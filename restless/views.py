@@ -91,7 +91,9 @@ class Endpoint(View):
 
         try:
             self._parse_body(request)
-            self._process_authenticate(request)
+            authentication_required = self._process_authenticate(request)
+            if authentication_required:
+                return authentication_required
 
             response = super(Endpoint, self).dispatch(request, *args, **kwargs)
         except HttpError as err:
