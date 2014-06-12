@@ -37,7 +37,8 @@ For the latest and the greatest, you can also get it directly from git master:
 
     pip install -e git+ssh://github.com/senko/DjangoRestless/tree/master
 
-The supported Python versions are 2.6, 2.7 and 3.3.
+The supported Python versions are 2.6, 2.7, 3.3 and 3.4, and the supported
+Django versions are 1.5+.
 
 ## Documentation
 
@@ -45,7 +46,7 @@ Documentation is graciously hosted by ReadTheDocs: http://django-restless.rtfd.o
 
 ## License
 
-Copyright (C) 2012-2013 by Django Restless contributors. See the
+Copyright (C) 2012-2014 by Django Restless contributors. See the
 [AUTHORS](AUTHORS.md) file for the list of contributors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
