@@ -256,12 +256,33 @@ class TestSerialization(TestCase):
             ]
         )
 
-
     def test_passthrough(self):
         """Test that non-ORM types just pass through the serializer"""
 
         data = {'a': ['b', 'c'], 'd': 1, 'e': "foo"}
         self.assertEqual(data, serialize(data))
+
+    def test_serialize_takes_fields_tuple(self):
+        s = serialize(self.author, fields=('id',), include=('name',))
+        self.assertEqual(s, {
+            'id': self.author.id,
+            'name': self.author.name
+        })
+
+    def test_serialize_doesnt_mutate_fields(self):
+        runs = [0]
+
+        def accessor(obj):
+            runs[0] += 1
+            return 'foo'
+
+        # If fields are appended on, 'desc' will be twice in the list
+        # for the second run, so in total the accessor function will be
+        # run 3 instead of 2 times
+        serialize([self.author, self.author], fields=['id'],
+            include=[('desc', accessor)])
+
+        self.assertEqual(runs[0], 2)
 
 
 class TestEndpoint(TestCase):

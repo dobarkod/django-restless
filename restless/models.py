@@ -86,6 +86,8 @@ def serialize_model(obj, fields=None, include=None, exclude=None,
 
     if fields is None:
         fields = list(fieldmap.keys())
+    else:
+        fields = list(fields)
 
     if exclude is not None:
         fields = [f for f in fields if f not in exclude]
