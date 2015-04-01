@@ -5,8 +5,16 @@ python:
   - 3.3
   - 3.4
 env:
-  - DJANGO=1.5.8
-  - DJANGO=1.6.5
+  - DJANGO=1.5.12
+  - DJANGO=1.6.11
+  - DJANGO=1.7.7
+  - DJANGO=1.8
+matrix:
+  exclude:
+   - python: 2.6
+     env: DJANGO=1.7.7
+   - python: 2.6
+     env: DJANGO=1.8
 install: pip install -q Django==$DJANGO six coveralls
 script: python setup.py coverage
 after_success: cd testproject && coveralls
