@@ -9,10 +9,17 @@ __all__ = ['ListEndpoint', 'DetailEndpoint', 'ActionEndpoint']
 
 
 def _get_form(form, model):
+    from django import VERSION
+
+    if VERSION[:2] >= (1,8):
+        mf = lambda m: modelform_factory(m, fields='__all__')
+    else:
+        mf = modelform_factory
+
     if form:
         return form
     elif model:
-        return modelform_factory(model)
+        return mf(model)
     else:
         raise NotImplementedError('Form or Model class not specified')
 
