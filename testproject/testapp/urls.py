@@ -1,4 +1,10 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+
+try:
+    from django.conf.urls import patterns
+except ImportError:
+    def patterns(prefix, *args):
+        return args
 
 from .views import *
 
